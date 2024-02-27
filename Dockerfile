@@ -1,4 +1,4 @@
-ARG PIXI_VERSION=0.14.0
+ARG PIXI_VERSION=0.15.1
 ARG BASE_IMAGE=debian:bookworm-slim
 
 FROM --platform=$TARGETPLATFORM ubuntu:22.04 AS builder
