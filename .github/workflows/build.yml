@@ -121,7 +121,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build Docker images
       id: build
-      uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56
+      uses: docker/build-push-action@af5a7ed5ba88268d5278f7203fb52cd833f66d6e
       with:
         # provenance: false is needed to avoid unkown/unknown os/arch on ghcr
         # see: https://github.com/docker/build-push-action/issues/820
@@ -159,7 +159,7 @@ jobs:
           git tag ${{ needs.version.outputs.new-version }}
           git push origin ${{ needs.version.outputs.new-version }}
       - name: Create release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
           tag_name: ${{ needs.version.outputs.new-version }}
