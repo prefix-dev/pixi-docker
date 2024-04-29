@@ -4,6 +4,23 @@ This repository contains the docker configuration for the pixi container image.
 The pixi container image is based on different base images, depending on the use case.
 All images have pixi installed in `/usr/local/bin/pixi` and are ready to use.
 
+## Pulling the images
+
+The images are [available on "GHCR" (Github Container Registry)](https://github.com/prefix-dev/pixi-docker/pkgs/container/pixi).
+You can pull them using docker like so:
+
+```bash
+docker pull ghcr.io/prefix-dev/pixi:latest
+```
+
+There are different tags for different base images available:
+
+- `latest` - based on `ubuntu:jammy`
+- `focal` - based on `ubuntu:focal`
+- `bullseye` - based on `debian:bullseye`
+- `jammy-cuda-12.2.2` - based on `nvidia/cuda:12.2.2-jammy`
+- ... and more
+
 ## Images
 
 There are images based on `ubuntu`, `debian` and `nvidia/cuda` available.
