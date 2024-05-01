@@ -27,7 +27,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create pull request
-        uses: peter-evans/create-pull-request@70a41aba780001da0a30141984ae2a0c95d8704e
+        uses: peter-evans/create-pull-request@6d6857d36972b65feb161a90e484f2984215f83e
         if: github.ref_name == 'main'
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
