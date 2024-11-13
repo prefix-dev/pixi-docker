@@ -1,0 +1,20 @@
+# Windows Server Core base image
+FROM mcr.microsoft.com/windows/servercore:ltsc2022 AS builder
+ARG PIXI_VERSION=0.36.0
+
+# Set shell to PowerShell
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+
+# Download pixi for Windows
+RUN Invoke-WebRequest -Uri "https://github.com/prefix-dev/pixi/releases/download/v${env:PIXI_VERSION}/pixi-x86_64-pc-windows-msvc.exe" -OutFile C:\pixi.exe; \
+    Get-FileHash C:\pixi.exe; \
+    C:\pixi.exe --version
+
+FROM mcr.microsoft.com/windows/servercore:ltsc2022
+COPY --from=builder C:\pixi.exe C:\Windows\System32\pixi.exe
+
+# Set working directory
+WORKDIR C:\app
+
+# Set default command
+CMD ["cmd", "/C", "pixi --version"] 
