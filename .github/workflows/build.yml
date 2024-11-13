@@ -24,7 +24,7 @@ jobs:
         with:
           file: Dockerfile
           token: ${{ secrets.GITHUB_TOKEN }}
-          version-extraction-override: 'regex:ARG PIXI_VERSION=(.*)'
+          version-extraction-override: 'regex:ARG MAGIC_VERSION=(.*)'
       - name: Determine if pushing images
         id: push
         run: echo push=${{ steps.version-metadata.outputs.changed == 'true' && github.event_name == 'push' && github.ref_name == 'main' }} >> $GITHUB_OUTPUT
@@ -100,7 +100,7 @@ jobs:
       uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81
       with:
         images: |-
-          ghcr.io/prefix-dev/pixi
+          ghcr.io/modular/magic
         flavor: latest=false
         # latest
         # base-image
@@ -141,8 +141,8 @@ jobs:
       if: needs.version.outputs.push == 'true'
       run: |
         docker images
-        docker run --rm ghcr.io/prefix-dev/pixi:${{ needs.version.outputs.new-version }}-${{ steps.image-variables.outputs.tag }} pixi --version
-        docker run --rm ghcr.io/prefix-dev/pixi:${{ needs.version.outputs.new-version }}-${{ steps.image-variables.outputs.tag }} sh -c "mkdir /app && cd /app && pixi init && pixi add python && pixi run python --version"
+        docker run --rm ghcr.io/modular/magic:${{ needs.version.outputs.new-version }}-${{ steps.image-variables.outputs.tag }} magic --version
+        docker run --rm ghcr.io/modular/magic:${{ needs.version.outputs.new-version }}-${{ steps.image-variables.outputs.tag }} sh -c "mkdir /app && cd /app && magic init && magic add python && magic run python --version"
     - name: Image digest
       run: echo ${{ steps.build.outputs.digest }}
 

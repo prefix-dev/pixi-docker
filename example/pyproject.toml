@@ -37,7 +37,6 @@ pip = "*"
 
 # We use dependencies from conda to use it to build the wheel
 [tool.pixi.feature.build.dependencies]
-build = "*"
 flit-core = ">=3.2,<4"
 
 [tool.pixi.feature.build.tasks]

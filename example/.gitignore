@@ -1,5 +1,5 @@
-# pixi environments
-.pixi
+# magic environments
+.magic
 
 __pycache__/
 *.pyc
