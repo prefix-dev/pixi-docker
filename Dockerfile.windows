@@ -1,0 +1,13 @@
+# escape=`
+
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+
+ARG PIXI_VERSION
+
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+
+RUN Invoke-WebRequest -Uri "https://github.com/prefix-dev/pixi/releases/download/v${env:PIXI_VERSION}/pixi-x86_64-pc-windows-msvc.exe" -OutFile C:\Windows\System32\pixi.exe
+
+RUN pixi --version
+
