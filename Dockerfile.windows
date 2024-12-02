@@ -5,9 +5,11 @@ FROM ${BASE_IMAGE}
 
 ARG PIXI_VERSION
 
-SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+# Create a directory for Pixi
+RUN mkdir C:\Pixi
 
-RUN Invoke-WebRequest -Uri "https://github.com/prefix-dev/pixi/releases/download/v${env:PIXI_VERSION}/pixi-x86_64-pc-windows-msvc.exe" -OutFile C:\Windows\System32\pixi.exe
+# Download Pixi
+ADD https://github.com/prefix-dev/pixi/releases/download/v${PIXI_VERSION}/pixi-x86_64-pc-windows-msvc.exe C:\Pixi\pixi.exe
 
-RUN pixi --version
-
+# Set PATH environment variable
+ENV PATH="C:\Pixi;${PATH}"
