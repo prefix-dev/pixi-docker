@@ -141,8 +141,12 @@ jobs:
       if: needs.version.outputs.push == 'true'
       run: |
         docker images
+        # Test the pixi binary is available
         docker run --rm ghcr.io/prefix-dev/pixi:${{ needs.version.outputs.new-version }}-${{ steps.image-variables.outputs.tag }} pixi --version
+        # Test end-to-end pixi workflow
         docker run --rm ghcr.io/prefix-dev/pixi:${{ needs.version.outputs.new-version }}-${{ steps.image-variables.outputs.tag }} sh -c "mkdir /app && cd /app && pixi init && pixi add python && pixi run python --version"
+        # Test pixi global binaries are in PATH
+        docker run --rm pixi-docker sh -c "pixi global install rsync && rsync --version"
     - name: Image digest
       run: echo ${{ steps.build.outputs.digest }}
 

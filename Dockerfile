@@ -13,3 +13,4 @@ RUN /pixi --version
 
 FROM --platform=$TARGETPLATFORM $BASE_IMAGE
 COPY --from=builder --chown=root:root --chmod=0555 /pixi /usr/local/bin/pixi
+ENV PATH="/root/.pixi/bin:${PATH}"
