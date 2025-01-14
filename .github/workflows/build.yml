@@ -79,6 +79,7 @@ jobs:
                 "20.04": "focal",
                 "23.10": "mantic",
                 "24.04": "noble",
+                "25.05": "plucky"
             }
             ubuntu_version_number = base_image.split("-ubuntu")[-1]
             base_tag = base_image.split(":")[-1]
@@ -153,7 +154,7 @@ jobs:
 
   release:
     needs: [version, build]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     if: needs.version.outputs.push == 'true'
