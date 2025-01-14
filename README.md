@@ -15,10 +15,10 @@ docker pull ghcr.io/prefix-dev/pixi:latest
 
 There are different tags for different base images available:
 
-- `latest` - based on `ubuntu:jammy`
+- `latest` - based on `ubuntu:noble`
 - `focal` - based on `ubuntu:focal`
 - `bullseye` - based on `debian:bullseye`
-- `jammy-cuda-12.2.2` - based on `nvidia/cuda:12.2.2-jammy`
+- `noble-cuda-12.6.3` - based on `nvidia/cuda:12.6.3-ubuntu24.04`
 - ... and more
 
 ## Usage with shell-hook
@@ -27,7 +27,7 @@ The following example uses the pixi docker image as a base image for a multi-sta
 It also makes use of the `shell-hook` feature of pixi to define a convenient entry point (after executing the `shell-hook` script, the environment is activated.
 
 ```Dockerfile
-FROM ghcr.io/prefix-dev/pixi:0.18.0 AS build
+FROM ghcr.io/prefix-dev/pixi:0.40.0 AS build
 
 # copy source code, pixi.toml and pixi.lock to the container
 COPY . /app
@@ -43,7 +43,7 @@ RUN pixi shell-hook -e prod > /shell-hook.sh
 # extend the shell-hook script to run the command passed to the container
 RUN echo 'exec "$@"' >> /shell-hook.sh
 
-FROM ubuntu:22.04 AS production
+FROM ubuntu:24.04 AS production
 
 # only copy the production environment into prod container
 # please note that the "prefix" (path) needs to stay the same as in the build container
@@ -65,17 +65,17 @@ There are images based on `ubuntu`, `debian` and `nvidia/cuda` available.
 
 ### Ubuntu
 
-The `ubuntu:jammy` (22.04) based image is the default base image. It is used for the `latest` and `0.x.y` tag.
+The [`ubuntu:noble`](https://hub.docker.com/_/ubuntu) (24.04) based image is the default base image. It is used for the `latest` and `0.x.y` tag.
 
-There are also images based on `ubuntu:focal` (20.04), `ubuntu:mantic` (23.10) and `ubuntu:noble` (24.04) available.
+There are also images based on `ubuntu:focal` (20.04), `ubuntu:jammy` (22.04), `ubuntu:oracular` (24.10) and `ubuntu:plucky` (25.04) available.
 These images use the tags `focal`, `0.x.y-focal`, ...
 
 ### Debian
 
-Images based on `debian:bullseye`, `debian:bullseye-slim` (11), `debian:bookworm` and `debian:bookworm-slim` (12) are available.
+Images based on [`debian:bullseye`](https://hub.docker.com/_/debian), `debian:bullseye-slim` (11), `debian:bookworm` and `debian:bookworm-slim` (12) are available.
 
 These images have the tags `bullseye`, `0.x.y-bullseye`, ...
 
 ### NVIDIA/CUDA
 
-Images based on `nvidia/cuda` are available using the tags `cuda-<cuda-version>-jammy`, `cuda-<cuda-version>-focal`, `0.x.y-cuda-<cuda-version>-jammy`, ...
+Images based on [`nvidia/cuda`](https://hub.docker.com/r/nvidia/cuda) are available using the tags `cuda-<cuda-version>-jammy`, `cuda-<cuda-version>-focal`, `0.x.y-cuda-<cuda-version>-jammy`, ...
