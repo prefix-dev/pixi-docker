@@ -51,7 +51,6 @@ jobs:
          - nvidia/cuda:12.6.3-base-ubuntu24.04
          - nvidia/cuda:12.6.3-base-ubuntu22.04
          - nvidia/cuda:12.6.3-base-ubuntu20.04
-         - nvidia/cuda:11.6.1-base-ubuntu20.04
     steps:
     - name: Checkout source
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
