@@ -39,15 +39,18 @@ jobs:
       fail-fast: false
       matrix:
         base-image:
+         # https://hub.docker.com/_/debian
          - debian:bookworm-slim # 12
          - debian:bookworm # 12
          - debian:bullseye-slim # 11
          - debian:bullseye # 11
+         # https://hub.docker.com/_/ubuntu
          - ubuntu:plucky # 25.04
+         - ubuntu:oracular # 24.10
          - ubuntu:noble # 24.04
-         - ubuntu:mantic # 23.10
          - ubuntu:jammy # 22.04
          - ubuntu:focal # 20.04
+         # https://hub.docker.com/r/nvidia/cuda
          - nvidia/cuda:12.6.3-base-ubuntu24.04
          - nvidia/cuda:12.6.3-base-ubuntu22.04
          - nvidia/cuda:12.6.3-base-ubuntu20.04
@@ -66,8 +69,8 @@ jobs:
             code_names = {
                 "22.04": "jammy",
                 "20.04": "focal",
-                "23.10": "mantic",
                 "24.04": "noble",
+                "24.10": "oracular",
                 "25.05": "plucky"
             }
             ubuntu_version_number = base_image.split("-ubuntu")[-1]
