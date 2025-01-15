@@ -71,7 +71,7 @@ jobs:
                 "20.04": "focal",
                 "24.04": "noble",
                 "24.10": "oracular",
-                "25.05": "plucky"
+                "25.04": "plucky"
             }
             ubuntu_version_number = base_image.split("-ubuntu")[-1]
             base_tag = base_image.split(":")[-1]
