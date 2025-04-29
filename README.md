@@ -18,7 +18,7 @@ There are different tags for different base images available:
 - `latest` - based on `ubuntu:noble`
 - `focal` - based on `ubuntu:focal`
 - `bullseye` - based on `debian:bullseye`
-- `noble-cuda-12.6.3` - based on `nvidia/cuda:12.6.3-ubuntu24.04`
+- `noble-cuda-12.8.1` - based on `nvidia/cuda:12.8.1-base-ubuntu24.04`
 - ... and more
 
 ## Usage with shell-hook
