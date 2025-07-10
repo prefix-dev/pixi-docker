@@ -156,6 +156,7 @@ jobs:
       matrix:
         base-image:
           - mcr.microsoft.com/windows/servercore:ltsc2022
+          - mcr.microsoft.com/windows/nanoserver:ltsc2022
     steps:
       - name: Checkout source
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -164,18 +165,18 @@ jobs:
         id: image-variables
         run: |
           $baseImage = "${{ matrix.base-image }}"
-          $tag = "servercore"
+          $tag = if ($baseImage -like "*nanoserver*") { "nanoserver" } else { "servercore" }
           echo "tag=$tag" >> $env:GITHUB_OUTPUT
         shell: pwsh
 
       - name: Login to GHCR
-        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
+      - name: Build Docker image
         env:
           PIXI_VERSION: ${{ needs.version.outputs.new-version }}
         run: |
@@ -207,12 +208,21 @@ jobs:
             Write-Error "Python installation and test failed"
             exit 1
           }
+          # Test pixi global binaries are in PATH
+          docker run --rm ghcr.io/prefix-dev/pixi:${version}-${tag} `
+            cmd /c "pixi global install rsync && rsync --version"
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Pixi global binary test failed"
+            exit 1
+          }
         shell: pwsh
 
-      - name: push image
+      - name: Push image
         if: needs.version.outputs.push == 'true'
         run: |
-          docker push ghcr.io/prefix-dev/pixi:$env:PIXI_VERSION-$tag
+          $tag = "${{ steps.image-variables.outputs.tag }}"
+          docker push ghcr.io/prefix-dev/pixi:${{ needs.version.outputs.new-version }}-$tag
+        shell: pwsh
 
       - name: Image digest
         run: docker inspect ghcr.io/prefix-dev/pixi:${{ needs.version.outputs.new-version }}-${{ steps.image-variables.outputs.tag }} --format '{{.RepoDigests}}'
