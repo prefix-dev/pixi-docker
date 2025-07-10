@@ -1,4 +1,4 @@
-ARG PIXI_VERSION=0.38.0
+ARG PIXI_VERSION=0.49.0
 ARG BASE_IMAGE=debian:bookworm-slim
 
 FROM --platform=$TARGETPLATFORM ubuntu:24.04 AS builder
@@ -13,3 +13,4 @@ RUN /pixi --version
 
 FROM --platform=$TARGETPLATFORM $BASE_IMAGE
 COPY --from=builder --chown=root:root --chmod=0555 /pixi /usr/local/bin/pixi
+ENV PATH="/root/.pixi/bin:${PATH}"
