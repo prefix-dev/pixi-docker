@@ -210,7 +210,7 @@ jobs:
           }
           # Test pixi global binaries are in PATH
           docker run --rm ghcr.io/prefix-dev/pixi:${version}-${tag} `
-            cmd /c "pixi global install rsync && rsync --version"
+            cmd /c "pixi global install git && git --version"
           if ($LASTEXITCODE -ne 0) {
             Write-Error "Pixi global binary test failed"
             exit 1
