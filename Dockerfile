@@ -12,5 +12,7 @@ RUN curl -Ls \
 RUN /pixi --version
 
 FROM --platform=$TARGETPLATFORM $BASE_IMAGE
+SHELL [ "/bin/bash", "-c" ]
 COPY --from=builder --chown=root:root --chmod=0555 /pixi /usr/local/bin/pixi
+RUN echo -e '\neval "$(pixi completion --shell bash)"' >> /root/.bashrc
 ENV PATH="/root/.pixi/bin:${PATH}"
