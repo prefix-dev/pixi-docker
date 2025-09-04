@@ -1,0 +1,16 @@
+# escape=`
+
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+
+ARG PIXI_VERSION
+
+# Create directories for Pixi
+RUN mkdir C:\Pixi && mkdir C:\ProgramData\pixi
+
+# Download Pixi
+ADD https://github.com/prefix-dev/pixi/releases/download/v${PIXI_VERSION}/pixi-x86_64-pc-windows-msvc.exe C:\Pixi\pixi.exe
+
+# Set environment variables
+ENV PATH="C:\Pixi;${PATH}"
+ENV PIXI_HOME="C:\ProgramData\pixi"
