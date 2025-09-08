@@ -13,4 +13,5 @@ RUN /pixi --version
 
 FROM --platform=$TARGETPLATFORM $BASE_IMAGE
 COPY --from=builder --chown=root:root --chmod=0555 /pixi /usr/local/bin/pixi
+RUN printf '\neval "$(pixi completion --shell bash)"\n' >> /root/.bashrc
 ENV PATH="/root/.pixi/bin:${PATH}"
