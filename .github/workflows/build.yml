@@ -59,6 +59,7 @@ jobs:
     steps:
     - name: Checkout source
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
     - name: Set image variables
       id: image-variables
       env:
@@ -146,8 +147,91 @@ jobs:
     - name: Image digest
       run: echo ${{ steps.build.outputs.digest }}
 
+  build-windows:
+    needs: version
+    runs-on: windows-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        base-image:
+          - mcr.microsoft.com/windows/servercore:ltsc2022
+          - mcr.microsoft.com/windows/nanoserver:ltsc2022
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set image variables
+        id: image-variables
+        run: |
+          $baseImage = "${{ matrix.base-image }}"
+          $tag = if ($baseImage -like "*nanoserver*") { "nanoserver" } else { "servercore" }
+          echo "tag=$tag" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+
+      - name: Login to GHCR
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Docker image
+        env:
+          PIXI_VERSION: ${{ needs.version.outputs.new-version }}
+        run: |
+          $baseImage = "${{ matrix.base-image }}"
+          $tag = "${{ steps.image-variables.outputs.tag }}"
+          # Build the image
+          docker build `
+            --build-arg PIXI_VERSION=$env:PIXI_VERSION `
+            --build-arg BASE_IMAGE=$baseImage `
+            -t ghcr.io/prefix-dev/pixi:$env:PIXI_VERSION-$tag `
+            -f Dockerfile.windows .
+        shell: pwsh
+
+      - name: Test image
+        run: |
+          $tag = "${{ steps.image-variables.outputs.tag }}"
+          $version = "${{ needs.version.outputs.new-version }}"
+
+          # Test Pixi version
+          docker run --rm ghcr.io/prefix-dev/pixi:${version}-${tag} pixi --version
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Pixi version check failed"
+            exit 1
+          }
+          # Test Python installation
+          docker run --rm ghcr.io/prefix-dev/pixi:${version}-${tag} `
+            cmd /c "mkdir C:\app && cd C:\app && pixi init && pixi add python && pixi run python --version"
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Python installation and test failed"
+            exit 1
+          }
+          # Test pixi global binaries are in PATH
+          docker run --rm ghcr.io/prefix-dev/pixi:${version}-${tag} `
+            cmd /c "pixi global install git && git --version"
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Pixi global binary test failed"
+            exit 1
+          }
+        shell: pwsh
+
+      - name: Push image
+        if: needs.version.outputs.push == 'true'
+        run: |
+          $tag = "${{ steps.image-variables.outputs.tag }}"
+          docker push ghcr.io/prefix-dev/pixi:${{ needs.version.outputs.new-version }}-$tag
+        shell: pwsh
+
+      - name: Image digest
+        run: docker inspect ghcr.io/prefix-dev/pixi:${{ needs.version.outputs.new-version }}-${{ steps.image-variables.outputs.tag }} --format '{{.RepoDigests}}'
+        shell: pwsh
+
   release:
-    needs: [version, build]
+    needs: [version, build, build-windows]
     runs-on: ubuntu-latest
     permissions:
       contents: write
