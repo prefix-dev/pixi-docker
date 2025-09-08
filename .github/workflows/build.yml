@@ -51,9 +51,11 @@ jobs:
          - ubuntu:jammy # 22.04
          - ubuntu:focal # 20.04
          # https://hub.docker.com/r/nvidia/cuda
-         - nvidia/cuda:12.8.1-base-ubuntu24.04
-         - nvidia/cuda:12.8.1-base-ubuntu22.04
-         - nvidia/cuda:12.8.1-base-ubuntu20.04
+         - nvidia/cuda:12.9.1-base-ubuntu24.04
+         - nvidia/cuda:12.9.1-base-ubuntu22.04
+         - nvidia/cuda:12.9.1-base-ubuntu20.04
+         - nvidia/cuda:13.0.0-base-ubuntu24.04
+         - nvidia/cuda:13.0.0-base-ubuntu22.04
     steps:
     - name: Checkout source
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
