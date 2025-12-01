@@ -18,7 +18,7 @@ jobs:
       version-changed: ${{ steps.version-metadata.outputs.changed }}
       new-version: ${{ steps.version-metadata.outputs.newVersion }}
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
       - uses: Quantco/ui-actions/version-metadata@cd71d2a0e30b25569f6d723e57acca83347e58fc # v1.0.18
         id: version-metadata
         with:
@@ -58,7 +58,7 @@ jobs:
          - nvidia/cuda:13.0.0-base-ubuntu22.04
     steps:
     - name: Checkout source
-      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
     - name: Set image variables
       id: image-variables
       env:
@@ -93,7 +93,7 @@ jobs:
       shell: python
     - name: Get docker metadata
       id: metadata
-      uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f # v5.8.0
+      uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
       with:
         images: |-
           ghcr.io/prefix-dev/pixi
@@ -153,13 +153,13 @@ jobs:
       contents: write
     if: needs.version.outputs.push == 'true'
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
       - name: Push ${{ needs.version.outputs.new-version }} tag
         run: |
           git tag ${{ needs.version.outputs.new-version }}
           git push origin ${{ needs.version.outputs.new-version }}
       - name: Create release
-        uses: softprops/action-gh-release@6da8fa9354ddfdc4aeace5fc48d7f679b5214090 # v2.4.1
+        uses: softprops/action-gh-release@5be0e66d93ac7ed76da52eca8bb058f665c3a5fe # v2.4.2
         with:
           generate_release_notes: true
           tag_name: ${{ needs.version.outputs.new-version }}
