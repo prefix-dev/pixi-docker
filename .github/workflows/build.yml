@@ -18,7 +18,7 @@ jobs:
       version-changed: ${{ steps.version-metadata.outputs.changed }}
       new-version: ${{ steps.version-metadata.outputs.newVersion }}
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - uses: Quantco/ui-actions/version-metadata@cd71d2a0e30b25569f6d723e57acca83347e58fc # v1.0.18
         id: version-metadata
         with:
@@ -58,7 +58,7 @@ jobs:
          - nvidia/cuda:13.0.0-base-ubuntu22.04
     steps:
     - name: Checkout source
-      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     - name: Set image variables
       id: image-variables
       env:
@@ -93,7 +93,7 @@ jobs:
       shell: python
     - name: Get docker metadata
       id: metadata
-      uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f # v5.8.0
+      uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
       with:
         images: |-
           ghcr.io/prefix-dev/pixi
@@ -108,7 +108,7 @@ jobs:
             type=semver,pattern={{version}},enable=${{ steps.image-variables.outputs.is-default }},value=${{ needs.version.outputs.new-version }},priority=800
             type=semver,pattern={{version}}-${{ steps.image-variables.outputs.tag }},value=${{ needs.version.outputs.new-version }},priority=500
     - name: Setup docker buildx
-      uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+      uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
     - name: Login to GHCR
       uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
       with:
@@ -128,7 +128,7 @@ jobs:
           BASE_IMAGE=${{ matrix.base-image }}
         tags: ${{ steps.metadata.outputs.tags }}
         labels: ${{ steps.metadata.outputs.labels }}
-    - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       with:
         name: ${{ steps.image-variables.outputs.tag }}
         path: ${{ steps.metadata.outputs.bake-file }}
@@ -153,13 +153,13 @@ jobs:
       contents: write
     if: needs.version.outputs.push == 'true'
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Push ${{ needs.version.outputs.new-version }} tag
         run: |
           git tag ${{ needs.version.outputs.new-version }}
           git push origin ${{ needs.version.outputs.new-version }}
       - name: Create release
-        uses: softprops/action-gh-release@6da8fa9354ddfdc4aeace5fc48d7f679b5214090 # v2.4.1
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2.5.0
         with:
           generate_release_notes: true
           tag_name: ${{ needs.version.outputs.new-version }}
