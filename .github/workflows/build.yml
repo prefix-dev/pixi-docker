@@ -122,8 +122,11 @@ jobs:
         # provenance: false is needed to avoid unkown/unknown os/arch on ghcr
         # see: https://github.com/docker/build-push-action/issues/820
         provenance: false
-        platforms: ${{ steps.image-variables.outputs.platforms }}
+        # load: true loads the image into the local Docker daemon for testing, but only works
+        # with single-platform builds. For releases we build multi-platform and push to registry.
+        platforms: ${{ needs.version.outputs.push == 'true' && steps.image-variables.outputs.platforms || 'linux/amd64' }}
         push: ${{ needs.version.outputs.push == 'true' }}
+        load: ${{ needs.version.outputs.push != 'true' }}
         build-args: |-
           BASE_IMAGE=${{ matrix.base-image }}
         tags: ${{ steps.metadata.outputs.tags }}
@@ -133,16 +136,18 @@ jobs:
         name: ${{ steps.image-variables.outputs.tag }}
         path: ${{ steps.metadata.outputs.bake-file }}
     - name: Run tests
-      # buildx does not support outputting the image so we need to pull it and run tests
-      if: needs.version.outputs.push == 'true'
+      env:
+        TEST_IMAGE: ${{ needs.version.outputs.push == 'true' && steps.build.outputs.digest || steps.build.outputs.imageid }}
       run: |
         docker images
         # Test the pixi binary is available
-        docker run --rm ghcr.io/prefix-dev/pixi:${{ needs.version.outputs.new-version }}-${{ steps.image-variables.outputs.tag }} pixi --version
+        docker run --rm $TEST_IMAGE pixi --version
         # Test end-to-end pixi workflow
-        docker run --rm ghcr.io/prefix-dev/pixi:${{ needs.version.outputs.new-version }}-${{ steps.image-variables.outputs.tag }} sh -c "mkdir /app && cd /app && pixi init && pixi add python && pixi run python --version"
+        docker run --rm $TEST_IMAGE sh -c "mkdir /app && cd /app && pixi init && pixi add python && pixi run python --version"
+        # Test uv pypi integration
+        # docker run --rm ghcr.io/prefix-dev/pixi:0.63.1 sh -c "mkdir /app && cd /app && pixi init --format pyproject && pixi run python --version"
         # Test pixi global binaries are in PATH
-        docker run --rm ghcr.io/prefix-dev/pixi:${{ needs.version.outputs.new-version }}-${{ steps.image-variables.outputs.tag }} sh -c "pixi global install rsync && rsync --version"
+        docker run --rm $TEST_IMAGE sh -c "pixi global install rsync && rsync --version"
     - name: Image digest
       run: echo ${{ steps.build.outputs.digest }}
 
