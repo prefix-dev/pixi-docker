@@ -145,7 +145,7 @@ jobs:
         # Test end-to-end pixi workflow
         docker run --rm $TEST_IMAGE sh -c "mkdir /app && cd /app && pixi init && pixi add python && pixi run python --version"
         # Test uv pypi integration
-        docker run --rm ghcr.io/prefix-dev/pixi:0.63.1 sh -c "mkdir /app && cd /app && pixi init --format pyproject && pixi run python --version"
+        docker run --rm $TEST_IMAGE sh -c "mkdir /app && cd /app && pixi init --format pyproject && pixi run python --version"
         # Test pixi global binaries are in PATH
         docker run --rm $TEST_IMAGE sh -c "pixi global install rsync && rsync --version"
     - name: Image digest
