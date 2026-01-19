@@ -122,8 +122,9 @@ jobs:
         # provenance: false is needed to avoid unkown/unknown os/arch on ghcr
         # see: https://github.com/docker/build-push-action/issues/820
         provenance: false
-        platforms: ${{ steps.image-variables.outputs.platforms }}
+        platforms: ${{ needs.version.outputs.push == 'true' && steps.image-variables.outputs.platforms || 'linux/amd64' }}
         push: ${{ needs.version.outputs.push == 'true' }}
+        load: ${{ needs.version.outputs.push != 'true' }}
         build-args: |-
           BASE_IMAGE=${{ matrix.base-image }}
         tags: ${{ steps.metadata.outputs.tags }}
@@ -133,14 +134,16 @@ jobs:
         name: ${{ steps.image-variables.outputs.tag }}
         path: ${{ steps.metadata.outputs.bake-file }}
     - name: Run tests
+      env:
+        TEST_IMAGE: ${{ needs.version.outputs.push == 'true' && steps.build.outputs.digest || steps.build.outputs.imageid }}
       run: |
         docker images
         # Test the pixi binary is available
-        docker run --rm ${{ steps.build.outputs.digest }} pixi --version
+        docker run --rm $TEST_IMAGE pixi --version
         # Test end-to-end pixi workflow
-        docker run --rm ${{ steps.build.outputs.digest }} sh -c "mkdir /app && cd /app && pixi init && pixi add python && pixi run python --version"
+        docker run --rm $TEST_IMAGE sh -c "mkdir /app && cd /app && pixi init && pixi add python && pixi run python --version"
         # Test pixi global binaries are in PATH
-        docker run --rm ${{ steps.build.outputs.digest }} sh -c "pixi global install rsync && rsync --version"
+        docker run --rm $TEST_IMAGE sh -c "pixi global install rsync && rsync --version"
     - name: Image digest
       run: echo ${{ steps.build.outputs.digest }}
 
