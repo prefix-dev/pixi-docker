@@ -137,7 +137,7 @@ jobs:
         path: ${{ steps.metadata.outputs.bake-file }}
     - name: Run tests
       env:
-        TEST_IMAGE: ${{ needs.version.outputs.push == 'true' && steps.build.outputs.digest || steps.build.outputs.imageid }}
+        TEST_IMAGE: ${{ needs.version.outputs.push == 'true' && format('ghcr.io/prefix-dev/pixi@{0}', steps.build.outputs.digest) || steps.build.outputs.imageid }}
       run: |
         docker images
         # Test the pixi binary is available
