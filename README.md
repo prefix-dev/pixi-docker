@@ -73,7 +73,7 @@ These images use the tags `focal`, `0.x.y-focal`, ...
 
 ### Debian
 
-Images based on [`debian:bullseye`](https://hub.docker.com/_/debian), `debian:bullseye-slim` (11), `debian:bookworm` and `debian:bookworm-slim` (12) are available.
+Images based on [`debian:bullseye`](https://hub.docker.com/_/debian), `debian:bullseye-slim` (11), `debian:bookworm`, `debian:bookworm-slim` (12), `debian:trixie` and `debian:trixie-slim` (13) are available.
 
 These images have the tags `bullseye`, `0.x.y-bullseye`, ...
 
