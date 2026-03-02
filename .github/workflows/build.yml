@@ -19,7 +19,7 @@ jobs:
       new-version: ${{ steps.version-metadata.outputs.newVersion }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: Quantco/ui-actions/version-metadata@cd71d2a0e30b25569f6d723e57acca83347e58fc # v1.0.18
+      - uses: Quantco/ui-actions/version-metadata@adeb1cf49655487534b4ddaab09c3b7bdfd1d628 # v1.0.19
         id: version-metadata
         with:
           file: Dockerfile
@@ -117,7 +117,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build Docker images
       id: build
-      uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+      uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
       with:
         # provenance: false is needed to avoid unkown/unknown os/arch on ghcr
         # see: https://github.com/docker/build-push-action/issues/820
@@ -131,7 +131,7 @@ jobs:
           BASE_IMAGE=${{ matrix.base-image }}
         tags: ${{ steps.metadata.outputs.tags }}
         labels: ${{ steps.metadata.outputs.labels }}
-    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+    - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
         name: ${{ steps.image-variables.outputs.tag }}
         path: ${{ steps.metadata.outputs.bake-file }}
