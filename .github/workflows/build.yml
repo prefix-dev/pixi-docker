@@ -48,7 +48,6 @@ jobs:
          - debian:bullseye # 11
          # https://hub.docker.com/_/ubuntu
          - ubuntu:plucky # 25.04
-         - ubuntu:oracular # 24.10
          - ubuntu:noble # 24.04
          - ubuntu:jammy # 22.04
          - ubuntu:focal # 20.04
@@ -74,7 +73,6 @@ jobs:
                 "22.04": "jammy",
                 "20.04": "focal",
                 "24.04": "noble",
-                "24.10": "oracular",
                 "25.04": "plucky"
             }
             ubuntu_version_number = base_image.split("-ubuntu")[-1]
