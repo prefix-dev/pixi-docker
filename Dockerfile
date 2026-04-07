@@ -12,6 +12,7 @@ RUN curl -Ls \
 RUN /pixi --version
 
 FROM --platform=$TARGETPLATFORM $BASE_IMAGE
+RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates && rm -rf /var/lib/apt/lists/*
 COPY --from=builder --chown=root:root --chmod=0555 /pixi /usr/local/bin/pixi
 RUN printf '\neval "$(pixi completion --shell bash)"\n' >> /root/.bashrc
 ENV PATH="/root/.pixi/bin:${PATH}"
