@@ -40,6 +40,8 @@ jobs:
       matrix:
         base-image:
          # https://hub.docker.com/_/debian
+         - debian:trixie-slim # 13
+         - debian:trixie # 13
          - debian:bookworm-slim # 12
          - debian:bookworm # 12
          - debian:bullseye-slim # 11
