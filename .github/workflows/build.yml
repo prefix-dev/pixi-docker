@@ -19,7 +19,7 @@ jobs:
       new-version: ${{ steps.version-metadata.outputs.newVersion }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: Quantco/ui-actions/version-metadata@adeb1cf49655487534b4ddaab09c3b7bdfd1d628 # v1.0.19
+      - uses: Quantco/ui-actions/version-metadata@5bfb8cebf0801e07c6a1c208a35b41637a3ff7fa # v1.0.20
         id: version-metadata
         with:
           file: Dockerfile
