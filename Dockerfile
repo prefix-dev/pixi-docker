@@ -1,7 +1,7 @@
 ARG PIXI_VERSION=0.70.0
 ARG BASE_IMAGE=debian:bookworm-slim
 
-FROM --platform=$TARGETPLATFORM ubuntu:24.04 AS builder
+FROM --platform=$TARGETPLATFORM ubuntu:26.04 AS builder
 # need to specify the ARG again to make it available in this stage
 ARG PIXI_VERSION
 RUN apt-get update && apt-get install -y curl
