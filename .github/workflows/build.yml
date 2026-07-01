@@ -18,7 +18,7 @@ jobs:
       version-changed: ${{ steps.version-metadata.outputs.changed }}
       new-version: ${{ steps.version-metadata.outputs.newVersion }}
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - uses: Quantco/ui-actions/version-metadata@5bfb8cebf0801e07c6a1c208a35b41637a3ff7fa # v1.0.20
         id: version-metadata
         with:
@@ -59,7 +59,7 @@ jobs:
          - nvidia/cuda:13.0.0-base-ubuntu22.04
     steps:
     - name: Checkout source
-      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
     - name: Set image variables
       id: image-variables
       env:
@@ -158,13 +158,13 @@ jobs:
       contents: write
     if: needs.version.outputs.push == 'true'
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Push ${{ needs.version.outputs.new-version }} tag
         run: |
           git tag ${{ needs.version.outputs.new-version }}
           git push origin ${{ needs.version.outputs.new-version }}
       - name: Create release
-        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
+        uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v3.0.1
         with:
           generate_release_notes: true
           tag_name: ${{ needs.version.outputs.new-version }}
