@@ -1,4 +1,4 @@
-ARG PIXI_VERSION=0.76.0
+ARG PIXI_VERSION=0.76.1
 ARG BASE_IMAGE=debian:bookworm-slim
 
 FROM --platform=$TARGETPLATFORM ubuntu:resolute-20260707@sha256:3131b4cc82a783df6c9df078f86e01819a13594b865c2cad47bd1bca2b7063bb AS builder
