@@ -7,7 +7,6 @@ on:
 
 jobs:
   bump-pixi:
-    name: Reference latest Pixi version in README
     runs-on: ubuntu-latest
     permissions:
       contents: read
