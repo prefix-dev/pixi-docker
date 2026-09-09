@@ -127,7 +127,7 @@ Both final stages work with the same `shell-hook` setup, so this is a tradeoff, 
 | Image size, without the environment | 7.8 MB on amd64, 7.2 MB on arm64 | 78 MB on amd64 |
 | Attack surface | glibc, Bash, locale data | full distribution, including a shell, coreutils, and apt |
 | Debugging inside the container | Bash only; no `ls`, `cat`, `curl`, or package manager | usual utilities available, plus `apt-get install` |
-| System CA bundle | absent; use the environment's certificates | `ca-certificates` at the usual path |
+| System CA bundle | absent, and no way to add one | also absent, but `apt-get install ca-certificates` adds it |
 | Non-POSIX activation scripts | supported, Bash is present | supported |
 | Security updates for the base | rebuild this repository's runtime image | Ubuntu's own update stream |
 | Third-party tooling expecting a distribution | may break on missing `/bin/sh` and utilities | works |
