@@ -3,7 +3,7 @@
 This repository contains the docker configuration for the pixi container image.
 The pixi container image is based on different base images, depending on the use case.
 The Ubuntu, Debian and CUDA images have pixi installed in `/usr/local/bin/pixi`.
-The separate `pixi-runtime` image contains only the system libraries and Bash needed to run a copied environment.
+The separate `conda-runtime` image contains only the system libraries and Bash needed to run a copied environment.
 
 ## Pulling the images
 
@@ -24,11 +24,11 @@ There are different tags for different base images available:
 - ... and more
 
 The runtime-only image is published as a separate package,
-[`ghcr.io/prefix-dev/pixi-runtime`](https://github.com/prefix-dev/pixi-docker/pkgs/container/pixi-runtime),
-because it does not contain pixi:
+[`ghcr.io/prefix-dev/conda-runtime`](https://github.com/prefix-dev/pixi-docker/pkgs/container/conda-runtime),
+because it does not contain pixi and runs any copied conda environment:
 
 ```bash
-docker pull ghcr.io/prefix-dev/pixi-runtime:glibc-bash
+docker pull ghcr.io/prefix-dev/conda-runtime:glibc-bash
 ```
 
 ## Usage with shell-hook
@@ -53,7 +53,7 @@ RUN pixi shell-hook -e prod > /shell-hook.sh
 # extend the shell-hook script to run the command passed to the container
 RUN echo 'exec "$@"' >> /shell-hook.sh
 
-FROM ghcr.io/prefix-dev/pixi-runtime:glibc-bash AS production
+FROM ghcr.io/prefix-dev/conda-runtime:glibc-bash AS production
 
 # only copy the production environment into prod container
 # please note that the "prefix" (path) needs to stay the same as in the build container
@@ -70,7 +70,7 @@ CMD ["start-server"]
 ```
 
 Copy any application files and activation scripts referenced by the shell hook as well.
-The runtime image does not contain system utilities; see its requirements below.
+You can also keep `ubuntu:24.04` here; see [Choosing a final base image](#choosing-a-final-base-image).
 
 ## Images
 
@@ -78,7 +78,7 @@ There are images based on `ubuntu`, `debian` and `nvidia/cuda` available.
 
 ### Minimal runtime
 
-`ghcr.io/prefix-dev/pixi-runtime:glibc-bash` is built from [`Dockerfile.runtime`](Dockerfile.runtime)
+`ghcr.io/prefix-dev/conda-runtime:glibc-bash` is built from [`Dockerfile.runtime`](Dockerfile.runtime)
 for `linux/amd64` and `linux/arm64`. It contains glibc and its loader, UTF-8 locale
 data, Bash, `libtinfo`, and user/group and name-service configuration.
 It supports running as UID/GID `65532:65532`.
@@ -101,14 +101,14 @@ runtime components the image provides. Pin an image digest for deployments.
 To build the runtime and example locally:
 
 ```bash
-docker build -f Dockerfile.runtime -t pixi-runtime:local .
-docker build --build-arg RUNTIME_IMAGE=pixi-runtime:local -t pixi-example example
+docker build -f Dockerfile.runtime -t conda-runtime:local .
+docker build --build-arg RUNTIME_IMAGE=conda-runtime:local -t pixi-example example
 docker run --rm -p 8000:8000 pixi-example
 ```
 
 #### SBOM provenance
 
-The image retains metadata in `/usr/share/pixi-runtime/`:
+The image retains metadata in `/usr/share/conda-runtime/`:
 
 - `sbom/` contains the upstream SPDX package SBOMs for the extracted components.
 - `origins.tsv` maps each extracted file to its source path and package version.
@@ -117,6 +117,25 @@ The image retains metadata in `/usr/share/pixi-runtime/`:
 These are source-package SBOMs, not a claim that the complete APK packages are
 installed. The APK database is not copied. Generate a final-image SBOM that also
 includes the conda environment and application when building your application image.
+
+#### Choosing a final base image
+
+Both final stages work with the same `shell-hook` setup, so this is a tradeoff, not a migration.
+
+| | `conda-runtime:glibc-bash` | `ubuntu:24.04` |
+|---|---|---|
+| Image size, without the environment | 7.8 MB on amd64, 7.2 MB on arm64 | 78 MB on amd64 |
+| Attack surface | glibc, Bash, locale data | full distribution, including a shell, coreutils, and apt |
+| Debugging inside the container | Bash only; no `ls`, `cat`, `curl`, or package manager | usual utilities available, plus `apt-get install` |
+| System CA bundle | absent; use the environment's certificates | `ca-certificates` at the usual path |
+| Non-POSIX activation scripts | supported, Bash is present | supported |
+| Security updates for the base | rebuild this repository's runtime image | Ubuntu's own update stream |
+| Third-party tooling expecting a distribution | may break on missing `/bin/sh` and utilities | works |
+
+Use `conda-runtime` for small production images where the conda environment provides
+everything the application needs. Use Ubuntu or Debian when you want shell access for
+debugging, need system packages next to the environment, or run agents and sidecars
+that expect a distribution layout.
 
 ### Ubuntu
 

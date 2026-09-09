@@ -9,15 +9,15 @@ RUN apk add --no-cache \
 # The SBOMs describe upstream packages, not complete packages installed here.
 RUN set -eu; \
     mkdir -p /rootfs/bin /rootfs/lib /rootfs/lib64 /rootfs/usr/lib /rootfs/etc /rootfs/tmp \
-        /rootfs/usr/share/pixi-runtime/sbom; \
+        /rootfs/usr/share/conda-runtime/sbom; \
     chmod 1777 /rootfs/tmp; \
     copy_runtime_file() { \
         cp -L "$1" "$2"; \
         package="$(apk info --who-owns "$(readlink -f "$1")")"; \
         package="${package##* }"; \
-        cp "/var/lib/db/sbom/${package}.spdx.json" /rootfs/usr/share/pixi-runtime/sbom/; \
+        cp "/var/lib/db/sbom/${package}.spdx.json" /rootfs/usr/share/conda-runtime/sbom/; \
         printf '%s\t%s\t%s\n' "${2#/rootfs}" "$1" "$package" \
-            >> /rootfs/usr/share/pixi-runtime/origins.tsv; \
+            >> /rootfs/usr/share/conda-runtime/origins.tsv; \
     }; \
     apk --repositories-file /dev/null info -L glibc ld-linux > /tmp/glibc-files; \
     while IFS= read -r file; do \
@@ -42,7 +42,7 @@ RUN set -eu; \
     copy_runtime_file /usr/lib/libtinfo.so.6 /rootfs/lib/libtinfo.so.6; \
     cd /rootfs; \
     find bin lib usr/lib etc -type f -exec sha256sum {} + > /tmp/runtime-checksums; \
-    LC_ALL=C sort /tmp/runtime-checksums > usr/share/pixi-runtime/files.sha256
+    LC_ALL=C sort /tmp/runtime-checksums > usr/share/conda-runtime/files.sha256
 
 FROM scratch
 COPY --from=source /rootfs/ /

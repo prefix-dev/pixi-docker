@@ -41,20 +41,20 @@ jobs:
         env:
           PLATFORM: ${{ matrix.platform }}
         run: |
-          docker build --platform="$PLATFORM" -f Dockerfile.runtime -t pixi-runtime:test \
+          docker build --platform="$PLATFORM" -f Dockerfile.runtime -t conda-runtime:test \
             --label "org.opencontainers.image.source=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
             --label "org.opencontainers.image.revision=$GITHUB_SHA" .
-          docker build --platform="$PLATFORM" --build-arg RUNTIME_IMAGE=pixi-runtime:test \
-            -f example/Dockerfile -t pixi-runtime:example example
+          docker build --platform="$PLATFORM" --build-arg RUNTIME_IMAGE=conda-runtime:test \
+            -f example/Dockerfile -t conda-runtime:example example
       - name: Test copied environment and provenance
         run: |
           docker run --rm --read-only --tmpfs /tmp --user=65532:65532 \
             --mount "type=bind,source=$PWD/tests/runtime.py,target=/runtime.py,readonly" \
-            pixi-runtime:example python /runtime.py
+            conda-runtime:example python /runtime.py
       - name: Export tested runtime
         env:
           ARCHITECTURE: ${{ matrix.architecture }}
-        run: docker save --output "runtime-$ARCHITECTURE.tar" pixi-runtime:test
+        run: docker save --output "runtime-$ARCHITECTURE.tar" conda-runtime:test
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: runtime-${{ matrix.architecture }}
@@ -82,12 +82,12 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish tested platform images and manifest
         env:
-          IMAGE: ghcr.io/prefix-dev/pixi-runtime
+          IMAGE: ghcr.io/prefix-dev/conda-runtime
         run: |
           for architecture in amd64 arm64; do
             docker load --input "images/runtime-$architecture.tar"
             tag="$IMAGE:glibc-bash-$GITHUB_SHA-$architecture"
-            docker tag pixi-runtime:test "$tag"
+            docker tag conda-runtime:test "$tag"
             docker push "$tag"
           done
           docker buildx imagetools create \

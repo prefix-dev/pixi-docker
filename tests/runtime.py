@@ -45,7 +45,7 @@ assert libc.pthread_create(
 ) == 0
 assert libc.pthread_join(thread, None) == 0
 
-metadata = Path("/usr/share/pixi-runtime")
+metadata = Path("/usr/share/conda-runtime")
 checksums = {}
 for line in (metadata / "files.sha256").read_text().splitlines():
     checksum, filename = line.split("  ", 1)

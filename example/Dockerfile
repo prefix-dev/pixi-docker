@@ -1,4 +1,4 @@
-ARG RUNTIME_IMAGE=ghcr.io/prefix-dev/pixi-runtime:glibc-bash
+ARG RUNTIME_IMAGE=ghcr.io/prefix-dev/conda-runtime:glibc-bash
 
 FROM ghcr.io/prefix-dev/pixi:0.18.0 AS build
 
