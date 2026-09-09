@@ -82,16 +82,16 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish tested platform images and manifest
         env:
-          IMAGE: ghcr.io/prefix-dev/pixi
+          IMAGE: ghcr.io/prefix-dev/pixi-runtime
         run: |
           for architecture in amd64 arm64; do
             docker load --input "images/runtime-$architecture.tar"
-            tag="$IMAGE:runtime-$GITHUB_SHA-$architecture"
+            tag="$IMAGE:glibc-bash-$GITHUB_SHA-$architecture"
             docker tag pixi-runtime:test "$tag"
             docker push "$tag"
           done
           docker buildx imagetools create \
-            --tag "$IMAGE:runtime-$GITHUB_SHA" \
-            --tag "$IMAGE:runtime" \
-            "$IMAGE:runtime-$GITHUB_SHA-amd64" \
-            "$IMAGE:runtime-$GITHUB_SHA-arm64"
+            --tag "$IMAGE:glibc-bash-$GITHUB_SHA" \
+            --tag "$IMAGE:glibc-bash" \
+            "$IMAGE:glibc-bash-$GITHUB_SHA-amd64" \
+            "$IMAGE:glibc-bash-$GITHUB_SHA-arm64"

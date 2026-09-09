@@ -3,7 +3,7 @@
 This repository contains the docker configuration for the pixi container image.
 The pixi container image is based on different base images, depending on the use case.
 The Ubuntu, Debian and CUDA images have pixi installed in `/usr/local/bin/pixi`.
-The `runtime` image contains only the system libraries and Bash needed to run a copied environment.
+The separate `pixi-runtime` image contains only the system libraries and Bash needed to run a copied environment.
 
 ## Pulling the images
 
@@ -21,8 +21,15 @@ There are different tags for different base images available:
 - `bullseye` - based on `debian:bullseye`
 - `noble-cuda-12.9.1` - based on `nvidia/cuda:12.9.1-base-ubuntu24.04`
 - `noble-cuda-13.0.0` - based on `nvidia/cuda:13.0.0-base-ubuntu24.04`
-- `runtime` - a runtime-only image built from selected Wolfi files, without Pixi
 - ... and more
+
+The runtime-only image is published as a separate package,
+[`ghcr.io/prefix-dev/pixi-runtime`](https://github.com/prefix-dev/pixi-docker/pkgs/container/pixi-runtime),
+because it does not contain pixi:
+
+```bash
+docker pull ghcr.io/prefix-dev/pixi-runtime:glibc-bash
+```
 
 ## Usage with shell-hook
 
@@ -46,7 +53,7 @@ RUN pixi shell-hook -e prod > /shell-hook.sh
 # extend the shell-hook script to run the command passed to the container
 RUN echo 'exec "$@"' >> /shell-hook.sh
 
-FROM ghcr.io/prefix-dev/pixi:runtime AS production
+FROM ghcr.io/prefix-dev/pixi-runtime:glibc-bash AS production
 
 # only copy the production environment into prod container
 # please note that the "prefix" (path) needs to stay the same as in the build container
@@ -71,7 +78,7 @@ There are images based on `ubuntu`, `debian` and `nvidia/cuda` available.
 
 ### Minimal runtime
 
-`ghcr.io/prefix-dev/pixi:runtime` is built from [`Dockerfile.runtime`](Dockerfile.runtime)
+`ghcr.io/prefix-dev/pixi-runtime:glibc-bash` is built from [`Dockerfile.runtime`](Dockerfile.runtime)
 for `linux/amd64` and `linux/arm64`. It contains glibc and its loader, UTF-8 locale
 data, Bash, `libtinfo`, and user/group and name-service configuration.
 It supports running as UID/GID `65532:65532`.
@@ -88,8 +95,8 @@ The environment must also provide a discoverable `libgcc_s` when the application
 uses glibc thread cancellation or `pthread_exit`; the base image does not include it.
 
 Runtime images are published on changes to the runtime build, separately from Pixi
-releases. The tags are `runtime` and `runtime-<full-git-commit>`. Pin an image digest
-for deployments.
+releases. The tags are `glibc-bash` and `glibc-bash-<full-git-commit>`, naming the
+runtime components the image provides. Pin an image digest for deployments.
 
 To build the runtime and example locally:
 
