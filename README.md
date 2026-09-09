@@ -2,7 +2,8 @@
 
 This repository contains the docker configuration for the pixi container image.
 The pixi container image is based on different base images, depending on the use case.
-All images have pixi installed in `/usr/local/bin/pixi` and are ready to use.
+The Ubuntu, Debian and CUDA images have pixi installed in `/usr/local/bin/pixi`.
+The `runtime` image contains only the system libraries and Bash needed to run a copied environment.
 
 ## Pulling the images
 
@@ -20,12 +21,13 @@ There are different tags for different base images available:
 - `bullseye` - based on `debian:bullseye`
 - `noble-cuda-12.9.1` - based on `nvidia/cuda:12.9.1-base-ubuntu24.04`
 - `noble-cuda-13.0.0` - based on `nvidia/cuda:13.0.0-base-ubuntu24.04`
+- `runtime` - a runtime-only image built from selected Wolfi files, without Pixi
 - ... and more
 
 ## Usage with shell-hook
 
 The following example uses the pixi docker image as a base image for a multi-stage build.
-It also makes use of the `shell-hook` feature of pixi to define a convenient entry point (after executing the `shell-hook` script, the environment is activated.
+The `shell-hook` entrypoint activates the environment before executing the container command.
 
 ```Dockerfile
 FROM ghcr.io/prefix-dev/pixi:0.40.0 AS build
@@ -44,7 +46,7 @@ RUN pixi shell-hook -e prod > /shell-hook.sh
 # extend the shell-hook script to run the command passed to the container
 RUN echo 'exec "$@"' >> /shell-hook.sh
 
-FROM ubuntu:24.04 AS production
+FROM ghcr.io/prefix-dev/pixi:runtime AS production
 
 # only copy the production environment into prod container
 # please note that the "prefix" (path) needs to stay the same as in the build container
@@ -60,9 +62,52 @@ ENTRYPOINT ["/bin/bash", "/shell-hook.sh"]
 CMD ["start-server"]
 ```
 
+Copy any application files and activation scripts referenced by the shell hook as well.
+The runtime image does not contain system utilities; see its requirements below.
+
 ## Images
 
 There are images based on `ubuntu`, `debian` and `nvidia/cuda` available.
+
+### Minimal runtime
+
+`ghcr.io/prefix-dev/pixi:runtime` is built from [`Dockerfile.runtime`](Dockerfile.runtime)
+for `linux/amd64` and `linux/arm64`. It contains glibc and its loader, UTF-8 locale
+data, Bash, `libtinfo`, `libgcc_s`, and user/group and name-service configuration.
+It supports running as UID/GID `65532:65532`.
+
+This image is for the final stage of a multi-stage build, not for installing environments.
+It contains no Pixi, package manager, coreutils, `/bin/sh`, or system CA bundle.
+Bash is included for non-interactive shell hooks; terminal descriptions (terminfo)
+are not included. Add terminal data to the environment if the application needs it.
+Include the application's other dependencies, including `ca-certificates` for HTTPS,
+in the Pixi environment. Some clients need `SSL_CERT_FILE` pointed at the environment's
+`ssl/cacert.pem`. Use an Ubuntu or Debian base when the application or its activation
+scripts require system utilities or `/bin/sh`.
+
+Runtime images are published on changes to the runtime build, separately from Pixi
+releases. The tags are `runtime` and `runtime-<full-git-commit>`. Pin an image digest
+for deployments.
+
+To build the runtime and example locally:
+
+```bash
+docker build -f Dockerfile.runtime -t pixi-runtime:local .
+docker build --build-arg RUNTIME_IMAGE=pixi-runtime:local -t pixi-example example
+docker run --rm -p 8000:8000 pixi-example
+```
+
+#### SBOM provenance
+
+The image retains metadata in `/usr/share/pixi-runtime/`:
+
+- `sbom/` contains the upstream SPDX package SBOMs for the extracted components.
+- `origins.tsv` maps each extracted file to its source path and package version.
+- `files.sha256` records the extracted files' SHA-256 checksums.
+
+These are source-package SBOMs, not a claim that the complete APK packages are
+installed. The APK database is not copied. Generate a final-image SBOM that also
+includes the conda environment and application when building your application image.
 
 ### Ubuntu
 

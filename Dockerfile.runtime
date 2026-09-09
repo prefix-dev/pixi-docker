@@ -1,0 +1,52 @@
+FROM cgr.dev/chainguard/wolfi-base@sha256:918a593b8268c222afd4e2c4f06860ac984e60719b4697e4c71d796bc8fcd042 AS source
+
+RUN apk add --no-cache \
+    bash=5.3-r13 \
+    ncurses=6.6.20260905-r0 \
+    ncurses-terminfo-base=6.6.20260905-r0
+
+# Extract runtime files and retain the source package SBOM for each component.
+# The SBOMs describe upstream packages, not complete packages installed here.
+RUN set -eu; \
+    mkdir -p /rootfs/bin /rootfs/lib /rootfs/lib64 /rootfs/usr/lib /rootfs/etc /rootfs/tmp \
+        /rootfs/usr/share/pixi-runtime/sbom; \
+    chmod 1777 /rootfs/tmp; \
+    copy_runtime_file() { \
+        cp -L "$1" "$2"; \
+        package="$(apk info --who-owns "$(readlink -f "$1")")"; \
+        package="${package##* }"; \
+        cp "/var/lib/db/sbom/${package}.spdx.json" /rootfs/usr/share/pixi-runtime/sbom/; \
+        printf '%s\t%s\t%s\n' "${2#/rootfs}" "$1" "$package" \
+            >> /rootfs/usr/share/pixi-runtime/origins.tsv; \
+    }; \
+    apk --repositories-file /dev/null info -L glibc ld-linux > /tmp/glibc-files; \
+    while IFS= read -r file; do \
+        case "$file" in \
+            usr/lib/*/*.so*) ;; \
+            usr/lib/*.so*) copy_runtime_file "/$file" "/rootfs/lib/${file##*/}" ;; \
+        esac; \
+    done < /tmp/glibc-files; \
+    for loader in /rootfs/lib/ld-linux-*.so.*; do \
+        test -f "$loader"; \
+        ln -s "/lib/${loader##*/}" "/rootfs/lib64/${loader##*/}"; \
+    done; \
+    find /usr/lib/locale -type f > /tmp/locale-files; \
+    while IFS= read -r file; do \
+        mkdir -p "/rootfs${file%/*}"; \
+        copy_runtime_file "$file" "/rootfs$file"; \
+    done < /tmp/locale-files; \
+    for file in passwd group nsswitch.conf; do \
+        copy_runtime_file "/etc/$file" "/rootfs/etc/$file"; \
+    done; \
+    copy_runtime_file /usr/bin/bash /rootfs/bin/bash; \
+    copy_runtime_file /usr/lib/libtinfo.so.6 /rootfs/lib/libtinfo.so.6; \
+    copy_runtime_file /usr/lib/libgcc_s.so.1 /rootfs/lib/libgcc_s.so.1; \
+    cd /rootfs; \
+    find bin lib usr/lib etc -type f -exec sha256sum {} + > /tmp/runtime-checksums; \
+    LC_ALL=C sort /tmp/runtime-checksums > usr/share/pixi-runtime/files.sha256
+
+FROM scratch
+COPY --from=source /rootfs/ /
+ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ENV LANG=C.UTF-8
+CMD ["/bin/bash"]

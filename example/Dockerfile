@@ -1,3 +1,5 @@
+ARG RUNTIME_IMAGE=ghcr.io/prefix-dev/pixi:runtime
+
 FROM ghcr.io/prefix-dev/pixi:0.18.0 AS build
 
 # copy source code, pixi.toml and pixi.lock to the container
@@ -14,7 +16,7 @@ RUN pixi shell-hook -e prod > /shell-hook.sh
 # extend the shell-hook script to run the command passed to the container
 RUN echo 'exec "$@"' >> /shell-hook.sh
 
-FROM ubuntu:22.04 AS production
+FROM ${RUNTIME_IMAGE} AS production
 
 # only copy the production environment into prod container
 # please note that the "prefix" (path) needs to stay the same as in the build container
