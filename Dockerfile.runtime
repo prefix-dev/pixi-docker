@@ -40,7 +40,6 @@ RUN set -eu; \
     done; \
     copy_runtime_file /usr/bin/bash /rootfs/bin/bash; \
     copy_runtime_file /usr/lib/libtinfo.so.6 /rootfs/lib/libtinfo.so.6; \
-    copy_runtime_file /usr/lib/libgcc_s.so.1 /rootfs/lib/libgcc_s.so.1; \
     cd /rootfs; \
     find bin lib usr/lib etc -type f -exec sha256sum {} + > /tmp/runtime-checksums; \
     LC_ALL=C sort /tmp/runtime-checksums > usr/share/pixi-runtime/files.sha256

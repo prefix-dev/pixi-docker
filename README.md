@@ -73,7 +73,7 @@ There are images based on `ubuntu`, `debian` and `nvidia/cuda` available.
 
 `ghcr.io/prefix-dev/pixi:runtime` is built from [`Dockerfile.runtime`](Dockerfile.runtime)
 for `linux/amd64` and `linux/arm64`. It contains glibc and its loader, UTF-8 locale
-data, Bash, `libtinfo`, `libgcc_s`, and user/group and name-service configuration.
+data, Bash, `libtinfo`, and user/group and name-service configuration.
 It supports running as UID/GID `65532:65532`.
 
 This image is for the final stage of a multi-stage build, not for installing environments.
@@ -84,6 +84,8 @@ Include the application's other dependencies, including `ca-certificates` for HT
 in the Pixi environment. Some clients need `SSL_CERT_FILE` pointed at the environment's
 `ssl/cacert.pem`. Use an Ubuntu or Debian base when the application or its activation
 scripts require system utilities or `/bin/sh`.
+The environment must also provide a discoverable `libgcc_s` when the application
+uses glibc thread cancellation or `pthread_exit`; the base image does not include it.
 
 Runtime images are published on changes to the runtime build, separately from Pixi
 releases. The tags are `runtime` and `runtime-<full-git-commit>`. Pin an image digest

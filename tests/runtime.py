@@ -1,5 +1,6 @@
 """Exercise a copied Pixi environment and verify its base image provenance."""
 
+import ctypes
 import grp
 import hashlib
 import json
@@ -26,6 +27,23 @@ with sqlite3.connect(":memory:") as connection:
     assert connection.execute("SELECT 6 * 7").fetchone() == (42,)
 with urllib.request.urlopen("https://prefix.dev", timeout=30) as response:
     assert response.status == 200
+
+# Run pthread_exit entirely in native code, without unwinding a Python callback.
+libc = ctypes.CDLL("libc.so.6")
+thread = ctypes.c_ulong()
+libc.pthread_create.argtypes = [
+    ctypes.POINTER(ctypes.c_ulong),
+    ctypes.c_void_p,
+    ctypes.c_void_p,
+    ctypes.c_void_p,
+]
+libc.pthread_create.restype = ctypes.c_int
+libc.pthread_join.argtypes = [ctypes.c_ulong, ctypes.POINTER(ctypes.c_void_p)]
+libc.pthread_join.restype = ctypes.c_int
+assert libc.pthread_create(
+    ctypes.byref(thread), None, ctypes.cast(libc.pthread_exit, ctypes.c_void_p), None
+) == 0
+assert libc.pthread_join(thread, None) == 0
 
 metadata = Path("/usr/share/pixi-runtime")
 checksums = {}
