@@ -1,7 +1,7 @@
 ARG PIXI_VERSION=0.81.0
 ARG BASE_IMAGE=debian:bookworm-slim
 
-FROM --platform=$TARGETPLATFORM ubuntu:resolute-20260707@sha256:3131b4cc82a783df6c9df078f86e01819a13594b865c2cad47bd1bca2b7063bb AS builder
+FROM --platform=$TARGETPLATFORM ubuntu:resolute-20260912@sha256:da6fc2be547864451aa253836dd926da33623312df4a9a243e35dc877c378a78 AS builder
 # need to specify the ARG again to make it available in this stage
 ARG PIXI_VERSION
 RUN apt-get update && apt-get install -y curl
