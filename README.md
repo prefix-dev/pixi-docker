@@ -17,7 +17,7 @@ There are different tags for different base images available:
 
 - `latest` - based on `ubuntu:noble`
 - `focal` - based on `ubuntu:focal`
-- `bullseye` - based on `debian:bullseye`
+- `bookworm` - based on `debian:bookworm`
 - `noble-cuda-12.9.1` - based on `nvidia/cuda:12.9.1-base-ubuntu24.04`
 - `noble-cuda-13.0.0` - based on `nvidia/cuda:13.0.0-base-ubuntu24.04`
 - ... and more
@@ -73,9 +73,9 @@ These images use the tags `focal`, `0.x.y-focal`, ...
 
 ### Debian
 
-Images based on [`debian:bullseye`](https://hub.docker.com/_/debian), `debian:bullseye-slim` (11), `debian:bookworm`, `debian:bookworm-slim` (12), `debian:trixie` and `debian:trixie-slim` (13) are available.
+Images based on [`debian:bookworm`](https://hub.docker.com/_/debian), `debian:bookworm-slim` (12), `debian:trixie` and `debian:trixie-slim` (13) are available.
 
-These images have the tags `bullseye`, `0.x.y-bullseye`, ...
+These images have the tags `bookworm`, `0.x.y-bookworm`, ...
 
 ### NVIDIA/CUDA
 
